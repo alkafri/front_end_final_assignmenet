@@ -49,7 +49,7 @@
                 const accessToken = data.accessToken;
 
                 const expirationMinutes = 45;
-                const expirationTime = new Date().getTime() + expirationMinutes * 60000;
+                const expirationTime = new Date().getTime() + expirationMinutes * 60;
 
                 const token = this.generateToken(
                     { username: this.username },
@@ -96,6 +96,7 @@
         proceedAsGuest() {
             this.$router.push('/booklistguest');
         },
+
         generateToken(payload, expirationTime, accessToken) {
         const tokenPayload = {
             ...payload,
@@ -110,23 +111,25 @@
 
         return `${encodedHeader}.${encodedPayload}.${signature}`;
         },
+
         base64UrlEncode(text) {
-        const base64 = btoa(text);
-        return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+            const base64 = btoa(text);
+            return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
         },
         generateSignature(encodedHeader, encodedPayload, secretKey) {
-        const signature = this.sha256(`${encodedHeader}.${encodedPayload}.${secretKey}`);
-        return this.base64UrlEncode(signature);
+            const signature = this.sha256(`${encodedHeader}.${encodedPayload}.${secretKey}`);
+            return this.base64UrlEncode(signature);
         },
         sha256(plainText) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(plainText);
-        return window.crypto.subtle.digest('SHA-256', data).then(buffer => {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(plainText);
+            return window.crypto.subtle.digest('SHA-256', data).then(buffer => {
             const hashArray = Array.from(new Uint8Array(buffer));
             return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
         });
         }
     },
+    
     created() {
         const expirationTime = sessionStorage.getItem('tokenExpiration');
         if (expirationTime && new Date().getTime() > expirationTime) {
